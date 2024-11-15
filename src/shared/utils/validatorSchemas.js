@@ -15,6 +15,7 @@ const borrowerSchema = Joi.object({
   name: Joi.string().required().trim(),
   email: Joi.string().email().required().trim(),
   password: Joi.string().min(8).required(),
+  is_admin: Joi.boolean()
 });
 
 

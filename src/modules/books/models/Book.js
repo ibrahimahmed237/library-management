@@ -1,7 +1,7 @@
 const { DataTypes } = require("sequelize");
 const sequelize = require("../../../shared/db.js");
 
-const Book = sequelize.define("Book", {
+const Book = sequelize.define("Books", {
   id: {
     type: DataTypes.INTEGER,
     primaryKey: true,
@@ -33,6 +33,10 @@ const Book = sequelize.define("Book", {
     type: DataTypes.STRING,
     allowNull: true,
   },
-});
+},
+  {
+    tableName: 'books',
+  }
+);
 
 module.exports = Book;
