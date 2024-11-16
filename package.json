@@ -3,8 +3,10 @@
   "version": "1.0.0",
   "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon src/server.js"
+    "test": "jest",
+    "start": "nodemon src/server.js",
+    "db:migrate": "sequelize-cli db:migrate",
+    "db:seed:all": "sequelize-cli db:seed:all"
   },
   "author": "ibrahim",
   "license": "ISC",
@@ -18,7 +20,6 @@
     "express": "^4.21.1",
     "express-rate-limit": "^7.4.1",
     "joi": "^17.13.3",
-    "json2csv": "^6.0.0-alpha.2",
     "jsonwebtoken": "^9.0.2",
     "mysql2": "^3.11.4",
     "nodemon": "^3.1.7",

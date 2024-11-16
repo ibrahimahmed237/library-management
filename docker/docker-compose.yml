@@ -2,7 +2,9 @@ version: '3.8'
 
 services:
   app:
-    build: .
+    build:
+      context: ..
+      dockerfile: /docker/Dockerfile
     container_name: library_management_app
     environment:
        PORT: 3030
@@ -12,12 +14,10 @@ services:
        DB_PASSWORD: test123
        DB_NAME: library_management
        DB_HOST: db
-       
     ports:
       - "3030:3030"
     depends_on:
       - db
-
     command: /bin/bash -c '\
       npm install && \
       sequelize db:migrate && \
@@ -25,7 +25,7 @@ services:
       node server.js'
 
   db:
-    image: mysql:5.7
+    image: mysql:8.0
     container_name: library_management_db
     environment:
       MYSQL_ROOT_PASSWORD: test123
