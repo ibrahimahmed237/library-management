@@ -1,6 +1,6 @@
 const BookService = require("../services/bookService.js");
 const appError = require("../../../shared/utils/appError.js");
-
+const debug = require("debug")("app:bookController");
 class BookController {
     async addBook(req, res, next) {
         try {
@@ -26,8 +26,8 @@ class BookController {
 
     async deleteBook(req, res, next) {
         try {
-            await BookService.deleteBook(req.params.id);
-            res.status(204).json({ message: 'Book deleted successfully.' }); 
+            await BookService.deleteBook(req?.params?.id);
+            res.status(204).send();
         } catch (error) {
             next(new appError(error.message, 404)); 
         }

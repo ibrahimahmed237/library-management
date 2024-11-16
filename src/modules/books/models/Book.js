@@ -36,6 +36,7 @@ const Book = sequelize.define("Books", {
 },
   {
     tableName: 'books',
+    timestamps: false,
   }
 );
 

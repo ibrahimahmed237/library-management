@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    container_name: library_management_app
+    environment:
+       PORT: 3030
+       JWT_SECRET: secret_eeeh
+       NODE_ENV: development
+       DB_USERNAME: root
+       DB_PASSWORD: test123
+       DB_NAME: library_management
+       DB_HOST: db
+       
+    ports:
+      - "3030:3030"
+    depends_on:
+      - db
+
+    command: /bin/bash -c '\
+      npm install && \
+      sequelize db:migrate && \
+      sequelize db:seed:all && \
+      node server.js'
+
+  db:
+    image: mysql:5.7
+    container_name: library_management_db
+    environment:
+      MYSQL_ROOT_PASSWORD: test123
+      MYSQL_DATABASE: library_management
+      MYSQL_USER: root
+      MYSQL_PASSWORD: test123
+    ports:
+      - "3304:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+
+volumes:
+  db_data:
