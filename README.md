@@ -1,4 +1,3 @@
-```markdown
 # Library Management System
 
 This is a Library Management System built with Node.js, Express, Sequelize, and MySQL. It allows users to manage books, borrowers, and borrowing history efficiently. The system supports various functionalities including user authentication, book management, borrower management, borrowing operations, and reporting.
