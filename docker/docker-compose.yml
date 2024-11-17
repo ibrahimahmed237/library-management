@@ -21,18 +21,23 @@ services:
     ports:
       - "3030:3030"
     depends_on:
-      - mysql
+       mysql:
+         condition: service_healthy
 
   mysql:
-    image: mysql:8.0
-    container_name: library_management_db
+    image: mysql:8
     environment:
-      MYSQL_DATABASE: library_management
       MYSQL_ROOT_PASSWORD: test123
+      MYSQL_DATABASE: library_management
     ports:
       - "3304:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-ptest123"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
     volumes:
-      - db_data:/var/lib/mysql
+      - mysql_data:/var/lib/mysql
 
 volumes:
-  db_data:
+  mysql_data:

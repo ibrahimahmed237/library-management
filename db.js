@@ -1,5 +1,5 @@
 const knex = require('knex');
-const config = require('./knexfile');
+const config = require('./migrations/knexfile');
 
 const environment = process.env.NODE_ENV || 'development';
 const connectionConfig = config[environment];
