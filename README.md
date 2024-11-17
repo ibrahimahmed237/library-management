@@ -72,5 +72,5 @@ This will build the Docker images, run the containers, and set up the database w
     - This endpoint provides statistical data about the library, such as the number of books, borrowers, and borrowing activities.
 
 The Library Management System offers comprehensive functionalities to manage a library's operations effectively. From adding and updating books to managing borrower profiles and borrowing activities, the system ensures smooth and efficient library management. The reporting and statistics features provide valuable insights into the library's performance and help in making informed decisions.
-```
+
 
