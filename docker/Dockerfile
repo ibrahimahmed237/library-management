@@ -10,11 +10,9 @@ EXPOSE 3030
 
 WORKDIR /app/src
 
-# Create startup script using RUN
+# Create startup script
 RUN echo '#!/bin/sh' > /app/start.sh && \
-    echo 'npm run db:migrate' >> /app/start.sh && \
-    echo 'npm run db:seed:all || true' >> /app/start.sh && \
-    echo 'node server.js' >> /app/start.sh && \
+    echo 'cd /app && npx knex migrate:latest && npx knex seed:run --specific=01_cleanup.js && npx knex seed:run && cd /app/src && node server.js' >> /app/start.sh && \
     chmod +x /app/start.sh
 
 CMD ["/app/start.sh"]
