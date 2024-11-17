@@ -44,7 +44,22 @@ const BorrowingHistory = sequelize.define('BorrowingHistory', {
     },
 }, {
     tableName: 'borrowing_history',
-    timestamps: false
+    timestamps: false,
+    indexes: [
+        {
+            fields: ['checkout_date']
+        },
+        {
+            fields: ['return_date']
+        },
+        {
+            fields: ['borrower_id']
+        },
+        {
+            fields: ['book_id']
+        }
+    ],
+
 });
 
 BorrowingHistory.belongsTo(Book, { foreignKey: 'book_id' });

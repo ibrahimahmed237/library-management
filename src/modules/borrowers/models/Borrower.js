@@ -47,6 +47,11 @@ const Borrower = sequelize.define("Borrowers", {
     timestamps: false,
     underscored: true,
     tableName: 'borrowers',
+    indexes: [{
+        name: 'borrower_email_idx',
+        unique: true,
+        fields: ['email']
+    }],
 });
 
 module.exports = Borrower;

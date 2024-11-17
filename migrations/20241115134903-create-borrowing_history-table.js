@@ -43,7 +43,24 @@ module.exports = {
         defaultValue: false
       },
 
-    })
+    },{
+      indexes: [
+      {
+        fields: ['checkout_date']
+      },
+      {
+        fields: ['return_date']
+      },
+      {
+        fields: ['borrower_id']
+      },
+      {
+        fields: ['book_id']
+      }
+      
+    ],
+  }
+    )
   },
 
   async down(queryInterface, Sequelize) {
