@@ -4,34 +4,31 @@ services:
   app:
     build:
       context: ..
-      dockerfile: /docker/Dockerfile
+      dockerfile: docker/Dockerfile
     container_name: library_management_app
+    restart: unless-stopped
     environment:
-       PORT: 3030
-       JWT_SECRET: secret_eeeh
-       NODE_ENV: development
-       DB_USERNAME: root
-       DB_PASSWORD: test123
-       DB_NAME: library_management
-       DB_HOST: db
+      PORT: 3030
+      JWT_SECRET: secret_eeeh
+      NODE_ENV: production
+      DB_USERNAME: root
+      DB_PASSWORD: test123
+      DB_NAME: library_management
+      DB_HOST: mysql
+      DEBUG: '*,-babel,-express:*,-body-parser:*,-nodemon,-morgan,-sequelize,-sequelize:*'
+      DEBUG_COLORS: true
+      DEBUG_DEPTH: 10
     ports:
       - "3030:3030"
     depends_on:
-      - db
-    command: /bin/bash -c '\
-      npm install && \
-      sequelize db:migrate && \
-      sequelize db:seed:all && \
-      node server.js'
+      - mysql
 
-  db:
+  mysql:
     image: mysql:8.0
     container_name: library_management_db
     environment:
-      MYSQL_ROOT_PASSWORD: test123
       MYSQL_DATABASE: library_management
-      MYSQL_USER: root
-      MYSQL_PASSWORD: test123
+      MYSQL_ROOT_PASSWORD: test123
     ports:
       - "3304:3306"
     volumes:

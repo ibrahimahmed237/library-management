@@ -8,7 +8,7 @@ const app = express();
 app.use(bodyParser.json());
 app.use('/api/books', bookRoutes);
 
-jest.mock('../src/modules/books/services/bookService'); // Mock the BookService
+jest.mock('../modules/books/services/bookService.js'); // Mock the BookService
 
 describe('Book Routes', () => {
   describe('POST /api/books', () => {

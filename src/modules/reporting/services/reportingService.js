@@ -2,10 +2,11 @@ const { Op } = require("sequelize");
 const Book = require("../../books/models/Book.js");
 const BorrowingHistory = require("../../borrowing/models/BorrowingHistory.js");
 const Borrower = require("../../borrowers/models/Borrower.js");
-const ExcelJS = require("exceljs");
+const XLSX = require("xlsx");
 const appError = require("../../../shared/utils/appError.js");
 const { startOfMonth, endOfMonth, subMonths } = require("date-fns");
 const sequelize = require("sequelize");
+
 
 class ReportingService {
     async generateReport({
@@ -231,62 +232,63 @@ class ReportingService {
         return query;
     }
     async generateExcel(data, reportType) {
-        const workbook = new ExcelJS.Workbook();
-        const dataSheet = workbook.addWorksheet("Data");
+        // Create a new workbook
+        const workbook = XLSX.utils.book_new();
+        
+        // Get headers based on report type
         const headers = this.getReportHeaders(reportType);
         
-        // Set up columns with proper width and header formatting
-        dataSheet.columns = headers.map((header) => ({
-            header: header,
-            key: header.toLowerCase().replace(/ /g, "_"),
-            width: 20,
-            style: { alignment: { horizontal: 'left' } }
-        }));
-
-        // Style the header row
-        dataSheet.getRow(1).font = { bold: true };
-        dataSheet.getRow(1).fill = {
-            type: 'pattern',
-            pattern: 'solid',
-            fgColor: { argb: 'FFE0E0E0' }
-        };
-
-        // Add data rows
+        // Format the data
+        let formattedData = [];
         if (data.data) {
-            const formattedData = this.formatReportData(data.data, reportType);
-            dataSheet.addRows(formattedData);
-
-            // Add analytics sheet if available
-            if (data.analytics) {
-                const analyticsSheet = workbook.addWorksheet("Analytics");
-                analyticsSheet.columns = [
-                    { header: "Metric", key: "metric", width: 25 },
-                    { header: "Value", key: "value", width: 20 }
-                ];
-
-                // Style analytics header
-                analyticsSheet.getRow(1).font = { bold: true };
-                analyticsSheet.getRow(1).fill = {
-                    type: 'pattern',
-                    pattern: 'solid',
-                    fgColor: { argb: 'FFE0E0E0' }
-                };
-
-                // Add analytics data
-                Object.entries(data.analytics).forEach(([key, value]) => {
-                    analyticsSheet.addRow({
-                        metric: key
-                            .replace(/_/g, " ")
-                            .replace(/\b\w/g, (l) => l.toUpperCase()),
-                        value: value
-                    });
-                });
-            }
+            formattedData = this.formatReportData(data.data, reportType);
         } else {
-            dataSheet.addRows(this.formatReportData(data, reportType));
+            formattedData = this.formatReportData(data, reportType);
         }
 
-        return await workbook.xlsx.writeBuffer();
+        // Create worksheet with data
+        const wsData = [headers, ...formattedData.map(row => headers.map(header => 
+            row[header.toLowerCase().replace(/ /g, "_")] || '')
+        )];
+        
+        const ws = XLSX.utils.aoa_to_sheet(wsData);
+
+        // Style the headers (make them bold)
+        const range = XLSX.utils.decode_range(ws['!ref']);
+        for (let C = range.s.c; C <= range.e.c; ++C) {
+            const address = XLSX.utils.encode_cell({ r: 0, c: C });
+            if (!ws[address]) continue;
+            ws[address].s = { font: { bold: true } };
+        }
+
+        // Add the data worksheet
+        XLSX.utils.book_append_sheet(workbook, ws, "Data");
+
+        // Add analytics sheet if available
+        if (data.analytics) {
+            const analyticsData = [
+                ["Metric", "Value"],
+                ...Object.entries(data.analytics).map(([key, value]) => [
+                    key.replace(/_/g, " ").replace(/\b\w/g, l => l.toUpperCase()),
+                    value.toString()
+                ])
+            ];
+            
+            const wsAnalytics = XLSX.utils.aoa_to_sheet(analyticsData);
+            
+            // Style analytics headers
+            const analyticsCell = XLSX.utils.encode_cell({ r: 0, c: 0 });
+            wsAnalytics[analyticsCell].s = { font: { bold: true } };
+            
+            XLSX.utils.book_append_sheet(workbook, wsAnalytics, "Analytics");
+        }
+
+        // Set column widths
+        const maxWidth = 20;
+        ws['!cols'] = headers.map(() => ({ wch: maxWidth }));
+
+        // Write to buffer
+        return XLSX.write(workbook, { type: 'buffer', bookType: 'xlsx' });
     }
 
     getReportHeaders(reportType) {

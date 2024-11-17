@@ -3,7 +3,7 @@
     "username": "root",
     "password": "test123",
     "database": "library_management",
-    "host": "127.0.0.1",
+    "host": "mysql",
     "dialect": "mysql"
   },
   "production": {
@@ -11,6 +11,6 @@
     "password": "test123",
     "database": "library_management",
     "host": "mysql",
-    "dialect": "db"
+    "dialect": "mysql"
   }
 }
