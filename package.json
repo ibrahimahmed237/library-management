@@ -7,6 +7,8 @@
     "start": "nodemon src/server.js",
     "db:create": "sequelize-cli db:create",
     "db:migrate": "sequelize-cli db:migrate",
+    "db:migrate:undo:all": "sequelize-cli db:migrate:undo:all",
+    "db:seed:undo:all": "sequelize-cli db:seed:undo:all",
     "db:seed:all": "sequelize-cli db:seed:all"
   },
   "author": "ibrahim",

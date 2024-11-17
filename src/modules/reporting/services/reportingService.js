@@ -218,7 +218,7 @@ class ReportingService {
                     sequelize.literal(`(
                         SELECT COALESCE(COUNT(*), 0)
                         FROM borrowing_history
-                        WHERE borrowing_history.book_id = books.id
+                        WHERE borrowing_history.book_id = \`Books\`.\`id\`
                         AND DATE(borrowing_history.checkout_date) >= '${startDate}'
                         AND DATE(borrowing_history.checkout_date) <= '${endDate}'
                     )`),
@@ -227,7 +227,6 @@ class ReportingService {
             ],
             order: [[sequelize.literal('total_borrowings'), 'DESC']],
         });
-    
     
         return query;
     }
