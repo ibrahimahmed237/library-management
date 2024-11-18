@@ -1,90 +1,183 @@
-const request = require('supertest');
-const express = require('express');
-const bodyParser = require('body-parser');
-const bookRoutes = require('../modules/books/routes/bookRoutes'); 
-const BookService = require('../modules/books/services/bookService'); 
+// __tests__/controllers/bookController.test.js
+const BookController = require('../modules/books/controllers/bookController');
+const BookService = require('../modules/books/services/bookService');
+const appError = require('../shared/utils/appError');
 
-const app = express();
-app.use(bodyParser.json());
-app.use('/api/books', bookRoutes);
+// Mock the BookService
+jest.mock('../modules/books/services/bookService');
 
-jest.mock('../modules/books/services/bookService.js'); // Mock the BookService
+describe('BookController', () => {
+    let mockReq;
+    let mockRes;
+    let mockNext;
 
-describe('Book Routes', () => {
-  describe('POST /api/books', () => {
-    it('should add a new book', async () => {
-      const newBook = { title: 'Test Book', author: 'Test Author', ISBN: '1234567890' };
-      BookService.addBook.mockResolvedValue(newBook);
+    beforeEach(() => {
+        // Reset all mocks before each test
+        jest.clearAllMocks();
 
-      const response = await request(app)
-        .post('/api/books')
-        .send(newBook)
-        .expect(201);
+        // Setup mock request object
+        mockReq = {
+            body: {},
+            params: {},
+            query: {}
+        };
 
-      expect(response.body).toEqual(newBook);
-      expect(BookService.addBook).toHaveBeenCalledWith(newBook);
-    });
-  });
+        // Setup mock response object
+        mockRes = {
+            status: jest.fn().mockReturnThis(),
+            json: jest.fn(),
+            send: jest.fn()
+        };
 
-  describe('PUT /api/books/:id', () => {
-    it('should update an existing book', async () => {
-      const updatedBook = { title: 'Updated Book', author: 'Updated Author', ISBN: '0987654321' };
-      BookService.updateBook.mockResolvedValue(true);
-
-      const response = await request(app)
-        .put('/api/books/1')
-        .send(updatedBook)
-        .expect(200);
-
-      expect(response.body).toEqual({ message: 'Book updated successfully.' });
-      expect(BookService.updateBook).toHaveBeenCalledWith('1', updatedBook);
+        // Setup mock next function
+        mockNext = jest.fn();
     });
 
-    it('should return 404 if the book is not found', async () => {
-      BookService.updateBook.mockResolvedValue(false);
+    describe('addBook', () => {
+        const mockBook = {
+            id: 1,
+            title: 'Test Book',
+            author: 'Test Author',
+            ISBN: '1234567890'
+        };
 
-      const response = await request(app)
-        .put('/api/books/1')
-        .send({ title: 'Non-existent Book' })
-        .expect(404);
+        it('should successfully add a book', async () => {
+            mockReq.body = mockBook;
+            BookService.addBook.mockResolvedValue(mockBook);
 
-      expect(response.body).toEqual({ message: 'Book not found.' });
+            await BookController.addBook(mockReq, mockRes, mockNext);
+
+            expect(BookService.addBook).toHaveBeenCalledWith(mockBook);
+            expect(mockRes.status).toHaveBeenCalledWith(201);
+            expect(mockRes.json).toHaveBeenCalledWith(mockBook);
+        });
+
+        it('should handle errors when adding a book', async () => {
+            const error = new Error('Validation error');
+            BookService.addBook.mockRejectedValue(error);
+
+            await BookController.addBook(mockReq, mockRes, mockNext);
+
+            expect(mockNext).toHaveBeenCalledWith(
+                expect.any(appError)
+            );
+            expect(mockNext.mock.calls[0][0].statusCode).toBe(400);
+        });
     });
-  });
 
-  describe('DELETE /api/books/:id', () => {
-    it('should delete an existing book', async () => {
-      BookService.deleteBook.mockResolvedValue(true);
+    describe('updateBook', () => {
+        const mockUpdate = {
+            title: 'Updated Book'
+        };
 
-      await request(app)
-        .delete('/api/books/1')
-        .expect(204);
+        it('should successfully update a book', async () => {
+            mockReq.params.id = '1';
+            mockReq.body = mockUpdate;
+            BookService.updateBook.mockResolvedValue(true);
 
-      expect(BookService.deleteBook).toHaveBeenCalledWith('1');
+            await BookController.updateBook(mockReq, mockRes, mockNext);
+
+            expect(BookService.updateBook).toHaveBeenCalledWith('1', mockUpdate);
+            expect(mockRes.status).toHaveBeenCalledWith(200);
+            expect(mockRes.json).toHaveBeenCalledWith({
+                message: 'Book updated successfully.'
+            });
+        });
+
+        it('should handle book not found during update', async () => {
+            mockReq.params.id = '999';
+            mockReq.body = mockUpdate;
+            BookService.updateBook.mockResolvedValue(false);
+
+            await BookController.updateBook(mockReq, mockRes, mockNext);
+
+            expect(mockNext).toHaveBeenCalledWith(
+                expect.any(appError)
+            );
+            expect(mockNext.mock.calls[0][0].statusCode).toBe(404);
+        });
     });
 
-    it('should return 404 if the book is not found', async () => {
-      BookService.deleteBook.mockResolvedValue(false);
+    describe('deleteBook', () => {
+        it('should successfully delete a book', async () => {
+            mockReq.params.id = '1';
+            BookService.deleteBook.mockResolvedValue(true);
 
-      const response = await request(app)
-        .delete('/api/books/1')
-        .expect(404);
+            await BookController.deleteBook(mockReq, mockRes, mockNext);
 
-      expect(response.body).toEqual({ message: 'Book not found.' });
+            expect(BookService.deleteBook).toHaveBeenCalledWith('1');
+            expect(mockRes.status).toHaveBeenCalledWith(204);
+            expect(mockRes.send).toHaveBeenCalled();
+        });
+
+        it('should handle errors when deleting a book', async () => {
+            mockReq.params.id = '999';
+            BookService.deleteBook.mockRejectedValue(new Error('Book not found'));
+
+            await BookController.deleteBook(mockReq, mockRes, mockNext);
+
+            expect(mockNext).toHaveBeenCalledWith(
+                expect.any(appError)
+            );
+            expect(mockNext.mock.calls[0][0].statusCode).toBe(404);
+        });
     });
-  });
 
-  describe('GET /api/books', () => {
-    it('should list all books', async () => {
-      const books = [{ title: 'Book 1' }, { title: 'Book 2' }];
-      BookService.listBooks.mockResolvedValue(books);
+    describe('listBooks', () => {
+        const mockBooks = [
+            { id: 1, title: 'Book 1' },
+            { id: 2, title: 'Book 2' }
+        ];
 
-      const response = await request(app)
-        .get('/api/books')
-        .expect(200);
+        it('should successfully list all books', async () => {
+            BookService.listBooks.mockResolvedValue(mockBooks);
 
-      expect(response.body).toEqual(books);
-      expect(BookService.listBooks).toHaveBeenCalled();
+            await BookController.listBooks(mockReq, mockRes, mockNext);
+
+            expect(BookService.listBooks).toHaveBeenCalled();
+            expect(mockRes.status).toHaveBeenCalledWith(200);
+            expect(mockRes.json).toHaveBeenCalledWith(mockBooks);
+        });
+
+        it('should handle errors when listing books', async () => {
+            BookService.listBooks.mockRejectedValue(new Error('Database error'));
+
+            await BookController.listBooks(mockReq, mockRes, mockNext);
+
+            expect(mockNext).toHaveBeenCalledWith(
+                expect.any(appError)
+            );
+            expect(mockNext.mock.calls[0][0].statusCode).toBe(500);
+        });
     });
-  });
+
+    describe('searchBooks', () => {
+        const mockBooks = [
+            { id: 1, title: 'Search Result 1' },
+            { id: 2, title: 'Search Result 2' }
+        ];
+
+        it('should successfully search books', async () => {
+            mockReq.query = { title: 'Search' };
+            BookService.searchBooks.mockResolvedValue(mockBooks);
+
+            await BookController.searchBooks(mockReq, mockRes, mockNext);
+
+            expect(BookService.searchBooks).toHaveBeenCalledWith({ title: 'Search' });
+            expect(mockRes.status).toHaveBeenCalledWith(200);
+            expect(mockRes.json).toHaveBeenCalledWith(mockBooks);
+        });
+
+        it('should handle errors when searching books', async () => {
+            mockReq.query = { title: 'Error' };
+            BookService.searchBooks.mockRejectedValue(new Error('Search error'));
+
+            await BookController.searchBooks(mockReq, mockRes, mockNext);
+
+            expect(mockNext).toHaveBeenCalledWith(
+                expect.any(appError)
+            );
+            expect(mockNext.mock.calls[0][0].statusCode).toBe(500);
+        });
+    });
 });

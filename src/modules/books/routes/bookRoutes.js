@@ -13,7 +13,6 @@ const router = express.Router();
 
 router.post(
   "/",
-  limiter,
   authentication,
   authorization,
   validate(bookSchema),
@@ -30,6 +29,6 @@ router.put(
 
 router.delete("/:id", authentication, authorization, BookController.deleteBook);
 router.get("/", BookController.listBooks);
-router.get("/search", BookController.searchBooks);
+router.get("/search", limiter, BookController.searchBooks);
 
 module.exports = router;

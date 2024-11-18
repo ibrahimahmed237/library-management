@@ -18,7 +18,6 @@ RUN echo '#!/bin/sh' > /app/start.sh && \
     echo 'if [ $? -eq 0 ]; then' >> /app/start.sh && \
     echo '  echo "Database initialized successfully"' >> /app/start.sh && \
     echo '  cd /app && npx knex migrate:latest' >> /app/start.sh && \
-    # echo '  cd /app && npx knex seed:run --specific=01_cleanup.js' >> /app/start.sh && \
     echo '  cd /app && npx knex seed:run' >> /app/start.sh && \
     echo '  cd /app/src && node server.js' >> /app/start.sh && \
     echo 'else' >> /app/start.sh && \
