@@ -26,7 +26,7 @@ docker-compose up --build
 
 This will build the Docker images, run the containers, migrate the database, and seed the initial data.
 
-The `docker-compose.yml` file has been configured to automatically run the database migrations and seed the initial data when the containers are started. The relevant commands are included in the `command` in the `Dockerfile` file.
+The `docker-compose.yml` file has been configured to automatically run the database migrations and seed the initial data when the containers are started. The relevant commands are included in the `Dockerfile` file.
 
 If you want to remove the seeders, you can do so by removing the following command from the Dockerfile:
 `echo '  cd /app && npx knex seed:run' >> /app/start.sh`
