@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "main": "server.js",
   "scripts": {
-    "test": "dotenv -e .env.test jest",    "start": "nodemon src/server.js",
+    "test": "dotenv -e .env.test jest",  
+    "start": "nodemon src/server.js",
     "migrate": "knex migrate:latest",
     "migrate:rollback": "knex migrate:rollback",
     "seed": "knex seed:run"

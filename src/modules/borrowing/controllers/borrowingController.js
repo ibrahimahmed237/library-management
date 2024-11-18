@@ -24,10 +24,13 @@ class BorrowingController {
         }
     }
 
-    async getBorrowerBooks(req, res, next) {
+    async getCheckedOutBooks(req, res, next) {
         try {
-            const books = await BorrowingService.getBorrowerBooks(req.borrower.id);
-            res.status(200).json(books);
+            const checkedOutBooks = req.borrower.isAdmin 
+                ? await BorrowingService.getAllCheckedOutBooks()
+                : await BorrowingService.getBorrowerBooks(req.borrower.id);
+            console.log(req.borrower.isAdmin);
+            res.status(200).json(checkedOutBooks);
         } catch (error) {
             next(new appError(error.message, 500));
         }

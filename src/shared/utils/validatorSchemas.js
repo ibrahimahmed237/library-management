@@ -22,12 +22,17 @@ const bookSchema = Joi.object({
   description: Joi.string().allow("").max(1000).trim().messages({
     "string.max": "Description cannot exceed 1000 characters",
   }),
-  available_quantity: Joi.number().integer().required().min(0).default(1).messages({
-    "number.base": "Available quantity must be a number",
-    "number.integer": "Available quantity must be a whole number",
-    "number.min": "Available quantity cannot be negative",
-    "any.required": "Available quantity is required",
-  }),
+  available_quantity: Joi.number()
+    .integer()
+    .required()
+    .min(0)
+    .default(1)
+    .messages({
+      "number.base": "Available quantity must be a number",
+      "number.integer": "Available quantity must be a whole number",
+      "number.min": "Available quantity cannot be negative",
+      "any.required": "Available quantity is required",
+    }),
   shelf_location: Joi.string().allow("").required().max(255).trim().messages({
     "string.max": "Shelf location cannot exceed 255 characters",
     "any.required": "Shelf location is required",
@@ -145,22 +150,41 @@ const borrowerUpdateSchema = Joi.object({
 
 // Report Schemas
 const reportSchema = Joi.object({
-  start_date: Joi.date().required().messages({
-    "date.base": "Start date must be a valid date",
-    "any.required": "Start date is required",
-  }),
-  end_date: Joi.date().greater(Joi.ref("start_date")).required().messages({
-    "date.base": "End date must be a valid date",
-    "date.greater": "End date must be after start date",
-    "any.required": "End date is required",
-  }),
   report_type: Joi.string()
-  .valid("borrowing", "overdue", "inventory", "last_month_borrowing", "last_month_overdue")
-  .required()
-  .messages({
-      "any.only": "Report type must be one of: borrowing, overdue, inventory, last_month_borrowing, last_month_overdue",
+    .valid(
+      "borrowing",
+      "overdue",
+      "inventory",
+      "last_month_borrowing",
+      "last_month_overdue"
+    )
+    .required()
+    .messages({
+      "any.only":
+        "Report type must be one of: borrowing, overdue, inventory, last_month_borrowing, last_month_overdue",
       "any.required": "Report type is required",
-  }),
+    }),
+  start_date: Joi.date()
+    .when("report_type", {
+      is: Joi.valid("last_month_borrowing", "last_month_overdue"),
+      then: Joi.optional(),
+      otherwise: Joi.required(),
+    })
+    .messages({
+      "date.base": "Start date must be a valid date",
+      "any.required": "Start date is required",
+    }),
+  end_date: Joi.date()
+    .when("report_type", {
+      is: Joi.valid("last_month_borrowing", "last_month_overdue"),
+      then: Joi.optional(),
+      otherwise: Joi.required(),
+    })
+    .messages({
+      "date.base": "End date must be a valid date",
+      "date.greater": "End date must be after start date",
+      "any.required": "End date is required",
+    }),
 });
 
 module.exports = {

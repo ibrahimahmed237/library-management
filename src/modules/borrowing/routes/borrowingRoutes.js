@@ -24,9 +24,9 @@ router.post(
 );
 
 router.get(
-    "/my-books",
+    "/checked-out",
     authentication,
-    BorrowingController.getBorrowerBooks
+    BorrowingController.getCheckedOutBooks
 );
 
 router.get(
