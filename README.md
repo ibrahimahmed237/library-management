@@ -17,7 +17,7 @@ git clone https://github.com/ibrahimahmed237/library-management.git
 
 ### Build and run the Docker containers
 ```sh
-cd /docker
+cd ./docker
 ```
 
 ```sh
