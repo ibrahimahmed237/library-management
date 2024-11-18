@@ -6,6 +6,13 @@ const appError = require('../shared/utils/appError');
 // Mock the BookService
 jest.mock('../modules/books/services/bookService');
 
+// Mock the database connection
+jest.mock('../shared/db', () => ({
+  define: jest.fn(),
+  sync: jest.fn(),
+  transaction: jest.fn()
+}));
+
 describe('BookController', () => {
     let mockReq;
     let mockRes;

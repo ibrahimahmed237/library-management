@@ -1,6 +1,7 @@
 const BookService = require("../services/bookService.js");
 const appError = require("../../../shared/utils/appError.js");
 const debug = require("debug")("app:bookController");
+
 class BookController {
     async addBook(req, res, next) {
         try {
