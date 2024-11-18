@@ -254,6 +254,136 @@ Provides analytics and reporting for borrowing activities.
   - **Requires**: Authentication.
   - **Response**: Library statistics, including counts of books, borrowers, and activities. The response includes general statistics, popular books, borrowing trends, top borrowers, return rate analysis, overdue analysis, and library inventory statistics.
   - **Note**: For normal borrowers, the statistics are specific to their own activities. For admins, the statistics cover all library activities.
+  
+---
 
+# Error Handling
+
+The system implements a robust error handling mechanism to ensure graceful handling of various error scenarios. The error handling is implemented in both development and production environments with different levels of detail in the error responses.
+
+## Error Handler Structure
+
+### Development Environment
+In development, the error handler provides detailed error information including:
+- Error status
+- Error message
+- Full error stack trace
+
+Example development error response:
+```json
+{
+  "status": "error",
+  "message": "Invalid book ID format",
+  "stack": ""
+}
+```
+
+### Production Environment
+In production, the error handler provides limited information for security:
+- Error status
+- User-friendly error message
+
+Example production error response:
+```json
+{
+  "status": "error",
+  "message": "Invalid input data"
+}
+```
+
+## Error Types and Handling
+
+### 1. Operational Errors
+- Database validation errors
+- Invalid input data
+- Authentication/Authorization failures
+- Resource not found errors
+
+### 2. Programming Errors
+- Syntax errors
+- Reference errors
+- Type errors
+
+### 3. Specific Error Handlers
+
+#### Cast Errors
+Handles invalid database ID formats:
+```javascript
+{
+  "status": "error",
+  "message": "Invalid value '123xyz' for field 'bookId'"
+}
+```
+
+#### Validation Errors
+Handles data validation failures:
+```javascript
+{
+  "status": "error",
+  "message": "Invalid input data. Title is required"
+}
+```
+
+#### JWT Errors
+Handles authentication token issues:
+```javascript
+{
+  "status": "error",
+  "message": "Invalid token. Please log in again!"
+}
+```
+
+#### Not Found Errors
+Handles 404 errors for undefined routes:
+```javascript
+{
+  "status": "error",
+  "message": "Cannot find /api/invalid-route on this server!"
+}
+```
+
+---
+## Tests
+
+#### General Description
+Unit tests are written to verify the functionality of individual components of the application. These tests ensure that each function or method works as expected in isolation. The tests for the book routes cover various scenarios to validate the behavior of the `BookController` methods.
+
+To run the tests, use the following script:
+```bash
+npm run test
+```
+
+#### Book Routes Tests
+
+- **Add Book**
+  - **Description**: Tests the `addBook` function.
+  - **Test Cases**:
+    - Successfully adds a book and returns a 201 status with the book data.
+    - Handles errors when adding a book and calls the error handler with a 400 status.
+
+- **Update Book**
+  - **Description**: Tests the `updateBook` function.
+  - **Test Cases**:
+    - Successfully updates a book and returns a 200 status with a success message.
+    - Handles book not found during update and calls the error handler with a 404 status.
+
+- **Delete Book**
+  - **Description**: Tests the `deleteBook` function.
+  - **Test Cases**:
+    - Successfully deletes a book and returns a 204 status.
+    - Handles errors when deleting a book and calls the error handler with a 404 status.
+
+- **List Books**
+  - **Description**: Tests the `listBooks` function.
+  - **Test Cases**:
+    - Successfully lists all books and returns a 200 status with the list of books.
+    - Handles errors when listing books and calls the error handler with a 500 status.
+
+- **Search Books**
+  - **Description**: Tests the `searchBooks` function.
+  - **Test Cases**:
+    - Successfully searches books and returns a 200 status with the search results.
+    - Handles errors when searching books and calls the error handler with a 500 status.
+  
 --- 
 The Library Management System offers comprehensive functionalities to manage a library's operations effectively. From adding and updating books to managing borrower profiles and borrowing activities, the system ensures smooth and efficient library management. The reporting and statistics features provide valuable insights into the library's performance and help in making informed decisions.

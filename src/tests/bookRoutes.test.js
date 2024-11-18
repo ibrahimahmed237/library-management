@@ -1,4 +1,3 @@
-// __tests__/controllers/bookController.test.js
 const BookController = require('../modules/books/controllers/bookController');
 const BookService = require('../modules/books/services/bookService');
 const appError = require('../shared/utils/appError');
